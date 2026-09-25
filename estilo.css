@@ -164,3 +164,8 @@ button { cursor: pointer; }
 .dec-feita { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 12px; background: var(--superficie); border: 1px solid var(--linha); }
 .dec-feita div { display: grid; min-width: 0; }
 .dec-feita span { color: var(--suave); font-size: 15px; }
+
+/* conversa */
+.conversa-btn { display: grid; gap: 4px; padding: 20px; border-radius: 18px; background: var(--marca); color: var(--marca-texto); text-decoration: none; box-shadow: var(--sombra); }
+.conversa-titulo { font: 800 22px/1.2 var(--display); }
+.conversa-sub { opacity: .85; }
