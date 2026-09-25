@@ -169,3 +169,8 @@ button { cursor: pointer; }
 .conversa-btn { display: grid; gap: 4px; padding: 20px; border-radius: 18px; background: var(--marca); color: var(--marca-texto); text-decoration: none; box-shadow: var(--sombra); }
 .conversa-titulo { font: 800 22px/1.2 var(--display); }
 .conversa-sub { opacity: .85; }
+
+/* agendas do Google */
+.gcal { border-radius: 16px; overflow: hidden; border: 1px solid var(--linha); background: #fff; height: calc(100vh - 290px); min-height: 420px; }
+.gcal iframe { width: 100%; height: 100%; border: 0; display: block; }
+.dica a { color: var(--tinta); font-weight: 700; }

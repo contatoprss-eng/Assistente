@@ -1,8 +1,8 @@
 /* Service worker: deixa o app abrir sem internet e mostra as notificações. */
-const VERSAO = 'assistente-v3';
+const VERSAO = 'assistente-v4';
 const ARQUIVOS = [
   './', 'index.html', 'estilo.css', 'nucleo.js', 'manifest.webmanifest',
-  'modulos/calendario.js', 'modulos/decisoes.js', 'modulos/conversa.js', 'dados/decisoes.json',
+  'modulos/calendario.js', 'modulos/agendas.js', 'modulos/decisoes.js', 'modulos/conversa.js', 'dados/decisoes.json',
   'icones/icone.svg', 'icones/icone-180.png', 'icones/icone-192.png', 'icones/icone-512.png'
 ];
 

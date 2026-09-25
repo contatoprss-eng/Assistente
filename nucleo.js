@@ -96,11 +96,29 @@
     montarAbas();
   }
 
+  // Configuração pessoal chega por um link privado (#cfg=...) e fica só neste aparelho.
+  // Assim nada pessoal precisa estar no site público.
+  function lerConfigDoLink() {
+    const m = location.hash.match(/^#cfg=([A-Za-z0-9_-]+)/);
+    if (!m) return;
+    try {
+      const b64 = m[1].replace(/-/g, '+').replace(/_/g, '/');
+      const json = decodeURIComponent(escape(atob(b64)));
+      const cfg = JSON.parse(json);
+      dados.salvar('config', Object.assign(dados.ler('config', {}), cfg));
+      history.replaceState(null, '', location.pathname);
+      setTimeout(() => aviso('Configuração salva neste celular.'), 300);
+      if (cfg.abrir) dados.salvar('aba', cfg.abrir);
+    } catch (e) { aviso('Link de configuração inválido.'); }
+  }
+
   window.App = {
+    config: () => dados.ler('config', {}),
     dados, aviso, notificar, podeNotificar, pedirNotificacoes,
     registrar(modulo) { modulos.push(modulo); },
     iniciar() {
       registrarSW();
+      lerConfigDoLink();
       // Tarefas de fundo dos módulos (ex.: checar lembretes) rodam mesmo fora da aba deles.
       modulos.forEach(m => m.fundo && m.fundo());
       abrir(dados.ler('aba', modulos[0] && modulos[0].id));
