@@ -264,6 +264,13 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        // versão nova no GitHub Pages: baixa e abre a tela "Atualizar" do Android
+        Atualizador.INSTANCE.conferir(this, false);
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         voz.pausar();
