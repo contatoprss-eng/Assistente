@@ -21,6 +21,10 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+      - name: Baixar o motor de voz (sherpa-onnx)
+        run: |
+          mkdir -p android/app/libs
+          curl -sSfL -o android/app/libs/sherpa-onnx-1.13.8.aar https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.8/sherpa-onnx-1.13.8.aar
       - name: Compilar (sem assinatura)
         env:
           VERSAO: ${{ github.run_number }}

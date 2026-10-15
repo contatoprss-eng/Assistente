@@ -51,6 +51,19 @@ class Voz {
 
     Voz(Activity tela) {
         this.tela = tela;
+        // a tela Vozes avisa quando uma voz natural é baixada, escolhida ou removida
+        Neural.setAoMudar(rotulo -> {
+            for (JavaScriptReplyProxy p : paginas) {
+                mandarVozes(p);
+                JSONObject u = msg("usar-voz");
+                try {
+                    u.put("nome", rotulo);
+                } catch (Exception ignorado) {
+                }
+                mandar(p, u);
+            }
+            return kotlin.Unit.INSTANCE;
+        });
         tts = new TextToSpeech(tela, status -> principal.post(() -> {
             ttsPronto = status == TextToSpeech.SUCCESS;
             if (!ttsPronto) return;
@@ -73,7 +86,10 @@ class Voz {
         switch (m.optString("t")) {
             case "pronto":
                 paginas.add(proxy);
-                if (ttsPronto) mandarVozes(proxy);
+                if (ttsPronto || !Neural.INSTANCE.instaladas(tela).isEmpty()) mandarVozes(proxy);
+                break;
+            case "abrir-vozes":
+                tela.startActivity(new Intent(tela, VozesActivity.class));
                 break;
             case "rec-inicia":
                 iniciar(proxy, m.optString("lang", "pt-BR"), m.optBoolean("continuo"));
@@ -85,6 +101,7 @@ class Voz {
                 cancelar();
                 break;
             case "fala":
+                if (falarNatural(proxy, m)) break;
                 if (ttsPronto) falar(proxy, m);
                 else {
                     esperandoTts.add(m);
@@ -96,6 +113,7 @@ class Voz {
                 esperandoProxy.clear();
                 falas.clear();
                 if (tts != null) tts.stop();
+                Neural.INSTANCE.parar();
                 break;
         }
     }
@@ -180,6 +198,7 @@ class Voz {
 
     void pausar() {
         cancelar();
+        Neural.INSTANCE.parar();
         if (tts != null) tts.stop();
         falas.clear();
     }
@@ -292,7 +311,19 @@ class Voz {
 
     private void mandarVozes(JavaScriptReplyProxy p) {
         JSONArray lista = new JSONArray();
+        // vozes naturais baixadas primeiro (a mais recente é a que o painel usa)
         try {
+            for (Neural.VozN v : Neural.INSTANCE.instaladas(tela)) {
+                JSONObject o = new JSONObject();
+                o.put("nome", v.getRotulo());
+                o.put("lang", "pt-BR");
+                o.put("local", true);
+                o.put("padrao", lista.length() == 0);
+                lista.put(o);
+            }
+        } catch (Exception ignorado) {
+        }
+        if (ttsPronto) try {
             Voice padrao = tts.getDefaultVoice();
             Set<Voice> vs = tts.getVoices();
             if (vs != null) for (Voice v : vs) {
@@ -312,6 +343,40 @@ class Voz {
         } catch (Exception ignorado) {
         }
         mandar(p, m);
+    }
+
+    /** fala com uma voz natural quando a página pediu uma (ou não pediu nenhuma e há uma baixada) */
+    private boolean falarNatural(JavaScriptReplyProxy proxy, JSONObject m) {
+        String nome = m.optString("voz", "");
+        Neural.VozN v = nome.isEmpty() ? null : Neural.INSTANCE.porRotulo(nome);
+        if (v == null && nome.isEmpty()) {
+            java.util.List<Neural.VozN> ins = Neural.INSTANCE.instaladas(tela);
+            if (!ins.isEmpty()) v = ins.get(0);
+        }
+        if (v == null || !Neural.INSTANCE.instalado(tela, v.getPacote())) return false;
+        final String idPagina = m.optString("id");
+        Neural.INSTANCE.falar(tela.getApplicationContext(), v, m.optString("texto", ""), (float) m.optDouble("rate", 1), idPagina,
+                new Neural.Aviso() {
+                    @Override
+                    public void comecou(String id) {
+                        principal.post(() -> mandarFala(proxy, "fala-comeca", id));
+                    }
+
+                    @Override
+                    public void terminou(String id, boolean erro) {
+                        principal.post(() -> mandarFala(proxy, erro ? "fala-erro" : "fala-fim", id));
+                    }
+                });
+        return true;
+    }
+
+    private void mandarFala(JavaScriptReplyProxy proxy, String tipo, String id) {
+        JSONObject r = msg(tipo);
+        try {
+            r.put("id", id);
+        } catch (Exception ignorado) {
+        }
+        mandar(proxy, r);
     }
 
     private void falar(JavaScriptReplyProxy proxy, JSONObject m) {

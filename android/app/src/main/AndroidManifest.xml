@@ -31,6 +31,12 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/atalhos" />
         </activity>
+        <activity
+            android:name=".VozesActivity"
+            android:exported="true"
+            android:label="Vozes"
+            android:theme="@style/Tema" />
     </application>
 </manifest>

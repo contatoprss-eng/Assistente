@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
@@ -12,6 +13,17 @@ android {
         targetSdk 34
         versionCode Integer.parseInt(System.getenv('VERSAO') ?: '1')
         versionName "1.${System.getenv('VERSAO') ?: '0'}"
+        ndk { abiFilters 'arm64-v8a', 'armeabi-v7a' }
+    }
+
+    buildFeatures { buildConfig true }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging true
+            // o app só usa a ponte JNI do sherpa-onnx
+            excludes += ['**/libsherpa-onnx-c-api.so', '**/libsherpa-onnx-cxx-api.so']
+        }
     }
 
     buildTypes {
@@ -25,8 +37,12 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+
+    kotlinOptions { jvmTarget = '17' }
 }
 
 dependencies {
     implementation 'androidx.webkit:webkit:1.11.0'
+    // motor de voz offline (vozes naturais); o .aar é baixado pelo workflow
+    implementation files('libs/sherpa-onnx-1.13.8.aar')
 }

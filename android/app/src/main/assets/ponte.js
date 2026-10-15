@@ -105,6 +105,11 @@
   N.onmessage = function (msg) {
     var m;
     try { m = JSON.parse(msg.data); } catch (e) { return; }
+    if (m.t === 'usar-voz') {
+      // a voz escolhida na tela Vozes do app vira a voz do painel
+      try { if (m.nome) localStorage.setItem('central:vozNome', m.nome); else localStorage.removeItem('central:vozNome'); } catch (e) {}
+      return;
+    }
     if (m.t === 'vozes') {
       vozes = m.vozes.map(function (v) {
         return { name: v.nome, lang: v.lang, localService: v.local, voiceURI: v.nome, 'default': !!v.padrao };
@@ -136,5 +141,25 @@
     else if (m.t === 'rec-erro') evento(r, 'error', { error: m.erro, message: m.erro });
     else if (m.t === 'rec-fim') { ativo = null; evento(r, 'audioend'); evento(r, 'end'); }
   };
+  /* ---------- Botão "Baixar vozes" na janela Trocar voz do painel ---------- */
+  window.AssistenteApp = { abrirVozes: function () { enviar({ t: 'abrir-vozes' }); } };
+  function botaoVozes() {
+    var l = document.getElementById('listaVozes');
+    if (!l || l.querySelector('[data-app-vozes]')) return;
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('data-app-vozes', '1');
+    b.textContent = '＋ Baixar vozes mais naturais (grátis)';
+    b.style.cssText = 'display:block;width:100%;margin-top:12px;padding:14px;border:0;border-radius:12px;' +
+      'background:#1D4ED8;color:#fff;font:inherit;font-weight:700;cursor:pointer';
+    b.onclick = function () { window.AssistenteApp.abrirVozes(); };
+    l.appendChild(b);
+  }
+  function observar() {
+    try { new MutationObserver(botaoVozes).observe(document.documentElement, { childList: true, subtree: true }); } catch (e) {}
+    botaoVozes();
+  }
+  if (document.documentElement) observar(); else document.addEventListener('DOMContentLoaded', observar);
+
   enviar({ t: 'pronto' });
 })();
