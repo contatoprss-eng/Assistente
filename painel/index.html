@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Assistente Pessoal</title>
+<meta name="theme-color" content="#1D4ED8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icone-192.png">
+<link rel="apple-touch-icon" href="icone-180.png">
+<style>
+  body{margin:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#fff;color:#0B1B3A;padding:24px;box-sizing:border-box;text-align:center}
+  img{width:96px;height:96px;border-radius:22px}
+  h1{margin:0;font-size:24px;color:#1D4ED8}
+  a.btn,button{display:block;width:100%;max-width:320px;padding:16px;border-radius:14px;border:0;font-size:17px;font-weight:700;text-decoration:none;cursor:pointer}
+  a.btn{background:#1D4ED8;color:#fff}
+  button{background:#EEF2FF;color:#1D4ED8}
+  p{margin:0;color:#475569;font-size:15px;max-width:320px}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+  <img src="icone-192.png" alt="">
+  <h1>Assistente Pessoal</h1>
+  <a class="btn" id="abrir" href="https://claude.ai/artifact/AHBfN98yssXUUfH77jVvzx">Abrir o painel</a>
+  <button id="instalar" hidden>Instalar como app</button>
+  <p id="dica" hidden>Para instalar: toque em ⋮ no Chrome e depois em "Instalar app".</p>
+<script>
+  const PAINEL = document.getElementById('abrir').href;
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  const instalado = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  // aberto pelo ícone: vai direto para o painel
+  if (instalado) location.replace(PAINEL);
+  else document.getElementById('dica').hidden = false;
+  let pedido = null;
+  addEventListener('beforeinstallprompt', e => {
+    e.preventDefault(); pedido = e;
+    document.getElementById('instalar').hidden = false;
+    document.getElementById('dica').hidden = true;
+  });
+  document.getElementById('instalar').onclick = async () => {
+    if (!pedido) return;
+    pedido.prompt(); await pedido.userChoice; pedido = null;
+    document.getElementById('instalar').hidden = true;
+  };
+</script>
+</body>
+</html>
