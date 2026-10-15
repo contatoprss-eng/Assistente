@@ -6,6 +6,7 @@ pela ponte nativa (`Voz.java`), só nas origens do claude.ai.
 
 - Compila no GitHub Actions (`.github/workflows/apk.yml`) e sai **sem assinatura**
   na release `sem-assinatura`.
-- A chave fica fora do repositório. O APK assinado vai para a release `app`:
-  https://github.com/contatoprss-eng/Assistente/releases/download/app/AssistentePessoal.apk
+- A chave fica fora do repositório. O APK assinado fica em `painel/AssistentePessoal.apk`
+  e é baixado pelo GitHub Pages:
+  https://contatoprss-eng.github.io/Assistente/painel/AssistentePessoal.apk
 - Para atualizar o app no celular, a assinatura tem de ser sempre a mesma chave.
