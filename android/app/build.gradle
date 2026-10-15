@@ -1,0 +1,32 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'br.com.paulo.assistente'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'br.com.paulo.assistente'
+        minSdk 26
+        targetSdk 34
+        versionCode Integer.parseInt(System.getenv('VERSAO') ?: '1')
+        versionName "1.${System.getenv('VERSAO') ?: '0'}"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            // sem assinatura aqui: a chave não fica no repositório público
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.11.0'
+}

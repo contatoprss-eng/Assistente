@@ -1,0 +1,36 @@
+name: APK do Assistente
+
+on:
+  push:
+    branches: [main]
+    paths: ['android/**', '.github/workflows/apk.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  compilar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Compilar (sem assinatura)
+        env:
+          VERSAO: ${{ github.run_number }}
+        run: gradle -p android :app:assembleRelease --no-daemon
+      # A chave de assinatura não fica no repositório (é público): o APK sai sem
+      # assinatura e é assinado fora daqui antes de ir para a release "app".
+      - name: Publicar APK sem assinatura
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/release/app-release-unsigned.apk sem-assinatura-${{ github.run_number }}.apk
+          gh release view sem-assinatura >/dev/null 2>&1 || gh release create sem-assinatura --prerelease --title "Compilação sem assinatura" --notes "Uso interno: o APK para instalar está na release app."
+          gh release upload sem-assinatura sem-assinatura-${{ github.run_number }}.apk --clobber
