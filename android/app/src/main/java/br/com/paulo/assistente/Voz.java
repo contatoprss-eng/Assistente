@@ -2,7 +2,11 @@ package br.com.paulo.assistente;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -90,6 +94,24 @@ class Voz {
                 break;
             case "abrir-vozes":
                 tela.startActivity(new Intent(tela, VozesActivity.class));
+                break;
+            case "copiar":
+                // barra do painel: o texto vai para a área de transferência para colar no chat principal
+                try {
+                    ClipboardManager cm = (ClipboardManager) tela.getSystemService(Context.CLIPBOARD_SERVICE);
+                    cm.setPrimaryClip(ClipData.newPlainText("Assistente", m.optString("texto")));
+                } catch (Exception ignorado) {
+                }
+                break;
+            case "abrir":
+                // links do claude.ai/code abrem no app do Claude ou no Chrome, onde a conta já está logada
+                String url = m.optString("url");
+                if (url.startsWith("https://claude.ai/code")) {
+                    try {
+                        tela.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                    } catch (Exception ignorado) {
+                    }
+                }
                 break;
             case "rec-inicia":
                 iniciar(proxy, m.optString("lang", "pt-BR"), m.optBoolean("continuo"));

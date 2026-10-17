@@ -15,6 +15,10 @@
 
   function enviar(m) { try { N.postMessage(JSON.stringify(m)); } catch (e) {} }
 
+  // barra do painel: copiar o texto e abrir o chat principal fora do app
+  window.assistenteCopiar = function (texto) { enviar({ t: 'copiar', texto: String(texto || '') }); return true; };
+  window.assistenteAbrir = function (url) { enviar({ t: 'abrir', url: String(url || '') }); return true; };
+
   function evento(alvo, tipo, extra) {
     var ev;
     try { ev = new Event(tipo); } catch (e) { ev = document.createEvent('Event'); ev.initEvent(tipo, false, false); }

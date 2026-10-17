@@ -169,6 +169,11 @@ public class MainActivity extends Activity {
                 avisoGoogle();
                 return true;
             }
+            // claude.ai/code (chat do projeto) não abre dentro do app: vai para o app do Claude ou o Chrome
+            if (h.equals("claude.ai") && u.getPath() != null && u.getPath().startsWith("/code")) {
+                abrirFora(u);
+                return true;
+            }
             if (("https".equals(esquema) || "http".equals(esquema)) && dentroDoApp(u)) return false;
             if (!req.isForMainFrame()) return false;
             abrirFora(u);
